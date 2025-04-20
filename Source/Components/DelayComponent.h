@@ -20,6 +20,27 @@
 
 #include <JuceHeader.h>
 
+ // 定义一个函数用于从环境变量中读取并还原类型
+template<typename T>
+T readEnvWithType(const std::string& key) {
+    const char* envValue = std::getenv(key.c_str());
+    if (envValue == nullptr) {
+        return T(); // 返回默认值
+    }
+    std::string valueStr = envValue;
+    size_t colonPos = valueStr.find(':');
+    if (colonPos == std::string::npos) {
+        return T(); // 返回默认值
+    }
+    std::string type = valueStr.substr(0, colonPos);
+    std::string value = valueStr.substr(colonPos + 1);
+
+    T result;
+    std::istringstream iss(value);
+    iss >> result;
+    return result;
+}
+
 class DelayComponent : public juce::Component, public juce::AudioProcessorValueTreeState::Listener
 {
 public:
@@ -99,6 +120,7 @@ public:
 
         mRightMillisecondLabelPtr = std::make_unique<juce::Label>();
         mRightMillisecondLabelPtr->setText("Right delay", juce::dontSendNotification);
+        // mRightMillisecondSliderPtr->setValue(100.0f);
         mRightMillisecondLabelPtr->attachToComponent(mRightMillisecondSliderPtr.get(), false);
 
         addAndMakeVisible(mRightMillisecondSliderPtr.get());
@@ -146,7 +168,9 @@ public:
             apvts, delayFeedbackParameterId, *mFeedbackSliderPtr);
 
         mFeedbackLabelPtr = std::make_unique<juce::Label>();
-        mFeedbackLabelPtr->setText("Feedback", juce::dontSendNotification);
+        mFeedbackLabelPtr->setText("Feedback", juce::dontSendNotification);// 设置初始值
+        double hsh1 = readEnvWithType<double>("de_Feedback");
+        mFeedbackSliderPtr->setValue(hsh1);
         mFeedbackLabelPtr->attachToComponent(mFeedbackSliderPtr.get(), false);
 
         addAndMakeVisible(mFeedbackSliderPtr.get());
@@ -162,7 +186,9 @@ public:
             apvts, delayDryWetParameterId, *mDryWetSliderPtr);
 
         mDryWetLabelPtr = std::make_unique<juce::Label>();
-        mDryWetLabelPtr->setText("Mix", juce::dontSendNotification);
+        mDryWetLabelPtr->setText("Mix", juce::dontSendNotification);// 设置初始值
+        double hsh2 = readEnvWithType<double>("de_Mix");
+        mDryWetSliderPtr->setValue(hsh2);
         mDryWetLabelPtr->attachToComponent(mDryWetSliderPtr.get(), false);
 
         addAndMakeVisible(mDryWetSliderPtr.get());
@@ -191,12 +217,22 @@ public:
         apvts.addParameterListener(mDelayIsLinkedParameterId, this);
         parameterChanged(mDelayIsLinkedParameterId, *apvts.getRawParameterValue(mDelayIsLinkedParameterId));
 
+
+
         // Toggle Button
         mToggleButtonPtr = std::make_unique<juce::ToggleButton>();
+        // 设置按钮默认状态为开启
+        /*mToggleButtonPtr->setToggleState(true, juce::NotificationType::dontSendNotification);*/
         mToggleButtonAttachmentPtr = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
             apvts, toggleParameterId, *mToggleButtonPtr);
         addAndMakeVisible(mToggleButtonPtr.get());
+        // 设置按钮默认状态为开启
+       // mToggleButtonPtr->setToggleState(true, juce::NotificationType::dontSendNotification);
+
+
+
     }
+
 
     void parameterChanged(const juce::String& parameterID, float newValue) override
     {
@@ -212,14 +248,16 @@ public:
         if (mDelayIsLinked)
         {
             mLeftPerBeatLabelPtr->setText("Delay", juce::dontSendNotification);
-            mLeftMillisecondLabelPtr->setText("Delay", juce::dontSendNotification);
+            mLeftMillisecondLabelPtr->setText("Delay", juce::dontSendNotification);// 设置初始值
+            double hsh3 = readEnvWithType<double>("de_Delay");
+            mLeftMillisecondSliderPtr->setValue(hsh3);
         }
         else
         {
             mLeftPerBeatLabelPtr->setText("Left delay", juce::dontSendNotification);
             mLeftMillisecondLabelPtr->setText("Left delay", juce::dontSendNotification);
         }
-        
+
         resized();
     }
 
@@ -366,7 +404,7 @@ private:
     bool mDelayIsLinked = true;
 
     std::unique_ptr<juce::GroupComponent> mGroupComponentPtr;
-    
+
     std::unique_ptr<juce::Slider> mLeftPerBeatSliderPtr;
     std::unique_ptr<juce::Label> mLeftPerBeatLabelPtr;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mLeftPerBeatAttachmentPtr;
@@ -404,7 +442,10 @@ private:
 
     std::unique_ptr<juce::ToggleButton> mLinkedButtonPtr;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> mLinkedButtonAttachmentPtr;
-    
+
     std::unique_ptr<juce::ToggleButton> mToggleButtonPtr;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> mToggleButtonAttachmentPtr;
 };
+
+
+

@@ -1,24 +1,26 @@
+
 /*
-    This code is part of the Supertonal guitar effects multi-processor.
-    Copyright (C) 2023-2024  Paul Jones
+	This code is part of the Supertonal guitar effects multi-processor.
+	Copyright (C) 2023-2024  Paul Jones
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
 #include "PluginAudioProcessorEditor.h"
 #include "PluginAudioParameters.h"
 #include "PluginUtils.h"
+#include "Components/llm.h"
 
 static const std::vector<std::vector<std::string>> sMixerIds = {
 {
@@ -99,7 +101,7 @@ PluginAudioProcessorEditor::PluginAudioProcessorEditor(PluginAudioProcessor& pro
 	mAudioProcessorValueTreeState(processorRef.getAudioProcessorValueTreeState()),
 	mTopComponent(std::make_unique<TopComponent>(processorRef)),
 	mTabbedComponentPtr(std::make_unique<juce::TabbedComponent>(juce::TabbedButtonBar::Orientation::TabsAtTop)),
-	mPresetComponentPtr(std::make_unique<PresetComponent>(processorRef.getPresetManager(), processorRef.getUndoManager())),
+	mPresetComponentPtr(std::make_unique<PresetComponent>(processorRef, processorRef.getPresetManager(), processorRef.getUndoManager())),
 	mPedalsComponentPtr(std::make_unique<PreAmpComponent>(processorRef)),
 	mAmpComponentPtr(std::make_unique<AmpComponent>(mAudioProcessorValueTreeState)),
 	mFileChooser(std::make_unique<juce::FileChooser>("Select an Impulse Response File", juce::File{}, "*.wav;*.aiff;*.flac")),
@@ -107,14 +109,12 @@ PluginAudioProcessorEditor::PluginAudioProcessorEditor(PluginAudioProcessor& pro
 	this->launchAsyncFileChooserForImpulseResponse();
 		})),
 	mMixerApvtsIdComponentPtr(std::make_unique<ApvtsIdComponent>(mAudioProcessorValueTreeState, sMixerIds)),
-			mHiddenApvtsIdComponentPtr(std::make_unique<ApvtsIdComponent>(mAudioProcessorValueTreeState, sHiddenIds))
+	mHiddenApvtsIdComponentPtr(std::make_unique<ApvtsIdComponent>(mAudioProcessorValueTreeState, sHiddenIds))
 {
 	setLookAndFeel(&mLookAndFeel);
 
 	addAndMakeVisible(mPresetComponentPtr.get());
-
 	addAndMakeVisible(mTopComponent.get());
-
 	addAndMakeVisible(mTabbedComponentPtr.get());
 
 	mTabbedComponentPtr->addTab("Pedals", juce::Colours::transparentBlack, mPedalsComponentPtr.get(), true);
@@ -122,10 +122,11 @@ PluginAudioProcessorEditor::PluginAudioProcessorEditor(PluginAudioProcessor& pro
 	mTabbedComponentPtr->addTab("Cabinet", juce::Colours::transparentBlack, mCabinetComponentPtr.get(), true);
 	mTabbedComponentPtr->addTab("Mixer", juce::Colours::transparentBlack, mMixerApvtsIdComponentPtr.get(), true);
 	mTabbedComponentPtr->addTab("Hidden", juce::Colours::transparentBlack, mHiddenApvtsIdComponentPtr.get(), true);
-
+	mTabbedComponentPtr->addTab("Chat", juce::Colours::transparentBlack, new ChatComponent(), true);
 	setSize(800, 800);
 	setResizable(true, true);
 }
+
 
 void PluginAudioProcessorEditor::launchAsyncFileChooserForImpulseResponse()
 {

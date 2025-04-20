@@ -42,13 +42,15 @@ public:
     PluginAudioProcessor();
     ~PluginAudioProcessor() override;
 
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void reset() override;
+
+    void resetParametersToDefault(); // 重置参数的方法
 
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -62,15 +64,13 @@ public:
 
     int getNumPrograms() override;
     int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
-    void changeProgramName (int index, const juce::String& newName) override;
-
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
-
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-    void parameterChanged (const juce::String& parameterID, float newValue) override;
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
     void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) override;
 
     foleys::LevelMeterSource& getInputMeterSource()
@@ -97,6 +97,8 @@ public:
     {
         return *mUndoManager;
     }
+
+
 
     float getPitch()
     {
@@ -169,8 +171,8 @@ private:
 
     std::unique_ptr<juce::dsp::Bias<float>> mBiasPtr;
     std::unique_ptr<AmplifierEqualiser> mAmplifierEqualiser;
-    
-    bool mIsDelayOn = false;
+
+    bool mIsDelayOn = true;
     bool mDelayBpmSynced = false;
     bool mDelayIsLinked = true;
     float mDelayLeftMilliseconds = 30;
@@ -197,9 +199,9 @@ private:
     bool mIsLofi = false;
     std::unique_ptr<juce::dsp::Convolution> mLofiImpulseResponseConvolutionPtr;
 
-    bool mIsReverbOn = false;
+    bool mIsReverbOn = false;//???
     std::unique_ptr<juce::dsp::Reverb> mReverbPtr;
-    
+
     std::unique_ptr<juce::dsp::Gain<float>> mCabinetGainPtr;
 
     std::unique_ptr<InstrumentEqualiser> mInstrumentEqualiserPtr;
@@ -215,6 +217,7 @@ private:
     bool mIsBypassOn = false;
 
     void loadImpulseResponseFromState();
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginAudioProcessor)
+    std::unordered_map<std::string, float> parameterInitialValues; // 存储参数初始值的映射
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginAudioProcessor)
 };

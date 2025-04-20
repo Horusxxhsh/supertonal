@@ -1,3 +1,4 @@
+
 /*
     This code is part of the Supertonal guitar effects multi-processor.
     Copyright (C) 2023-2024  Paul Jones
@@ -30,10 +31,10 @@
 class PluginAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    explicit PluginAudioProcessorEditor (PluginAudioProcessor&);
+    explicit PluginAudioProcessorEditor(PluginAudioProcessor&);
     ~PluginAudioProcessorEditor() override;
 
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
     void launchAsyncFileChooserForImpulseResponse();
@@ -57,5 +58,5 @@ private:
     std::unique_ptr<ApvtsIdComponent> mMixerApvtsIdComponentPtr;
     std::unique_ptr<ApvtsIdComponent> mHiddenApvtsIdComponentPtr;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginAudioProcessorEditor)
 };
