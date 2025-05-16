@@ -43,6 +43,8 @@
               file="Source/Components/DelayComponent.h"/>
         <FILE id="sxvdYw" name="EquiliserComponent.h" compile="0" resource="0"
               file="Source/Components/EquiliserComponent.h"/>
+        <FILE id="dZ5SLy" name="llm.cpp" compile="1" resource="0" file="Source/Components/llm.cpp"/>
+        <FILE id="blbmTU" name="llm.h" compile="0" resource="0" file="Source/Components/llm.h"/>
         <FILE id="cwTZnW" name="MixerComponent.h" compile="0" resource="0"
               file="Source/Components/MixerComponent.h"/>
         <FILE id="lbtVDn" name="PedalComponent.h" compile="0" resource="0"
