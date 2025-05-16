@@ -80,15 +80,20 @@ EffectParameters extractParameters(const juce::String& jsonString) {
                 params.co_makeup = compressor->getProperty("Makeup");
                 storeEnvWithType("co_Makeup", juce::String(params.co_makeup), "double");
             }
+            if (compressor->hasProperty("Mix")) {
+                params.co_mix = compressor->getProperty("Mix");
+                storeEnvWithType("co_Mix", juce::String(params.co_mix), "double");
+            }
         }
     }
     else {
         params.Compressor_on = 0;
-        params.co_threshold = 0;
-        params.co_ratio = 0;
+        params.co_threshold = -128;
+        params.co_ratio = 1;
         params.co_attack = 0;
         params.co_release = 0;
-        params.co_makeup = 0;
+        params.co_makeup = -12;
+        params.co_mix = 0;
         //     storeEnvWithType("Compressor_on", juce::String(params.Compressor_on), "int");
     }
 
@@ -111,7 +116,7 @@ EffectParameters extractParameters(const juce::String& jsonString) {
         params.Driver_on = 0;
         //    storeEnvWithType("Driver_on", juce::String(params.Driver_on), "int");
         params.dr_distortion = 0;
-        params.dr_volume = 0;
+        params.dr_volume = -64;
     }
 
     // 获取过载效果器的参数Screamer
@@ -137,7 +142,7 @@ EffectParameters extractParameters(const juce::String& jsonString) {
         params.Screamer_on = 0;
         params.s_drive = 0;
         params.s_tone = 0;
-        params.s_level = 0;
+        params.s_level = -64;
         //       storeEnvWithType("Screamer_on", juce::String(params.Screamer_on), "int");
     }
 
@@ -163,7 +168,7 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     else {
         params.Delay_on = 0;
         params.de_feedback = 0;
-        params.de_delay = 0;
+        params.de_delay = 1;
         params.de_mix = 0;
         //   storeEnvWithType("Delay_on", juce::String(params.Delay_on), "int");
     }
@@ -226,10 +231,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
     else {
         params.Chorus_on = 0;
-        params.ch_delay = 0;
+        params.ch_delay = 0.01;
         params.ch_depth = 0;
-        params.ch_frequency = 0;
-        params.ch_width = 0;
+        params.ch_frequency = 0.05;
+        params.ch_width = 0.01;
         //  storeEnvWithType("Chorus_on", juce::String(params.Chorus_on), "int");
     }
 
@@ -263,11 +268,11 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
     else {
         params.Flanger_on = 0;
-        params.f_delay = 0;
+        params.f_delay = 0.001;
         params.f_depth = 0;
         params.f_feedback = 0;
-        params.f_frequency = 0;
-        params.f_width = 0;
+        params.f_frequency = 0.05;
+        params.f_width = 0.001;
         //   storeEnvWithType("Flanger_on", juce::String(params.Flanger_on), "int");
     }
 
@@ -299,8 +304,8 @@ EffectParameters extractParameters(const juce::String& jsonString) {
         params.Phaser_on = 0;
         params.p_depth = 0;
         params.p_feedback = 0;
-        params.p_frequency = 0;
-        params.p_width = 0;
+        params.p_frequency = 0.05;
+        params.p_width = 50;
         //storeEnvWithType("Phaser_on", juce::String(params.Phaser_on), "int");
     }
 
@@ -371,7 +376,7 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
     else {
         params.NoiseGate_on = 0;
-        params.n_noisegatethreshold = 0;
+        params.n_noisegatethreshold = -128;
         //storeEnvWithType("Phaser_on", juce::String(params.Phaser_on), "int");
     }
 
@@ -558,6 +563,7 @@ void ChatComponent::buttonClicked(juce::Button* button)
 void ChatComponent::run()
 {
     // 获取待发送的用户消息
+    updateStatus("sending request");
     auto userMessage = userMessageToSend;
     if (userMessage.isNotEmpty()) {
         juce::Logger::writeToLog("send request: " + userMessage);
@@ -609,7 +615,9 @@ void ChatComponent::run()
             auto response = stream->readEntireStreamAsString();
             // 打印 response 内容
             juce::Logger::writeToLog("Received response: " + response);
+            updateStatus("handling Response");
             handleResponse(response);
+            updateStatus("Ready");
             break;
         }
         else

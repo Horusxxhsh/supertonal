@@ -48,6 +48,7 @@ struct EffectParameters {
     int Phaser_on;//初始值（另）
     int Equaliser_on;
     int NoiseGate_on;
+    double co_mix;
     double co_threshold;//初始值PluginAudioProcessor
     int co_ratio;//初始值PluginAudioProcessor
     double co_attack;//初始值PluginAudioProcessor
@@ -99,10 +100,12 @@ struct EffectParameters {
             "Phaser_on: " + juce::String(Phaser_on) + "\n" +
             "Equaliser_on: " + juce::String(Equaliser_on) + "\n" +
             "NoiseGate_on: " + juce::String(NoiseGate_on) + "\n" +
+            "co_threshold" + juce::String(co_threshold) + "\n" +
             "co_ratio: " + juce::String(co_ratio) + "\n" +
             "co_attack: " + juce::String(co_attack) + "\n" +
             "co_release: " + juce::String(co_release) + "\n" +
             "co_makeup: " + juce::String(co_makeup) + "\n" +
+            "co_mix: " + juce::String(co_mix) + "\n" +
             "dr_distortion: " + juce::String(dr_distortion) + "\n" +
             "dr_volume: " + juce::String(dr_volume) + "\n" +
             "s_drive: " + juce::String(s_drive) + "\n" +
@@ -187,4 +190,8 @@ public:
 private:
     std::unique_ptr<MainWindow> mainWindow;
 };
+
+
+
+
 

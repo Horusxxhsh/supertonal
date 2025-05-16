@@ -1197,9 +1197,12 @@ void PluginAudioProcessor::resetParametersToDefault()
 	bool Phaser_on = readEnvWithType<bool>("Phaser_on");
 	bool Equaliser_on = readEnvWithType<bool>("Equaliser_on");
 	bool NoiseGate_on = readEnvWithType<bool>("NoiseGate_on");
+	double co_Threshold = readEnvWithType<double>("co_Threshold");
 	int co_Ratio = readEnvWithType<int>("co_Ratio");
 	double co_Attack = readEnvWithType<double>("co_Attack");
 	double co_Release = readEnvWithType<double>("co_Release");
+	double co_Makeup = readEnvWithType<double>("co_Makeup");
+	double co_Mix = readEnvWithType<double>("co_Mix");
 	double dr_Distortion = readEnvWithType<double>("dr_Distortion");
 	double dr_Volume = readEnvWithType<double>("dr_Volume");
 	double s_Drive = readEnvWithType<double>("s_Drive");
@@ -1250,9 +1253,12 @@ void PluginAudioProcessor::resetParametersToDefault()
 			parameterInitialValues["phaser_on"] = Phaser_on; // 存储初始值
 			parameterInitialValues["pre_eq_on"] = Equaliser_on;
 			//parameterInitialValues["phaser_on"] = NoiseGate_on;
+			parameterInitialValues["pre_comp_thresh"] = co_Threshold; // 存储初始值
 			parameterInitialValues["pre_comp_ratio"] = co_Ratio; // 存储初始值
 			parameterInitialValues["pre_comp_attack"] = co_Attack; // 存储初始值
 			parameterInitialValues["pre_comp_release"] = co_Release; // 存储初始值
+			parameterInitialValues["pre_comp_gain"] = co_Makeup; // 存储初始值
+			parameterInitialValues["pre_comp_blend"] = co_Mix; // 存储初始值
 			parameterInitialValues["mouse_drive_distortion"] = dr_Distortion; // 存储初始值
 			parameterInitialValues["mouse_drive_volume"] = dr_Volume; // 存储初始值
 			parameterInitialValues["tube_screamer_drive"] = s_Drive; // 存储初始值
@@ -1288,6 +1294,7 @@ void PluginAudioProcessor::resetParametersToDefault()
 			parameterInitialValues["pre_eq_level_gain"] = e_Level;
 			parameterInitialValues["noise_gate_threshold"] = p_NoiseGateThreshold;
 			// 从 parameterInitialValues 获取初始值
+			
 			if (parameterInitialValues.find(parameterId) != parameterInitialValues.end())
 			{
 				float initialValue = parameterInitialValues[parameterId];
