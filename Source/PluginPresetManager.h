@@ -33,6 +33,7 @@ public:
 	void loadPreset(const juce::String& presetName);
 	int loadNextPreset();
 	int loadPreviousPreset();
+	float getParameterValue(const juce::String& parameterID) const;
 	juce::StringArray getAllPresets() const;
 	juce::String getCurrentPreset() const;
 private:

@@ -1,46 +1,38 @@
 #include "llm.h"
 #include <cstdlib>
 #include <sstream>
+#include <string>
+#include <fstream>
+#include <juce_core/juce_core.h>
 
-// 定义一个函数用于从环境变量中读取并还原类型
-template<typename T>
-T readEnvWithType(const std::string& key) {
-    const char* envValue = std::getenv(key.c_str());
-    if (envValue == nullptr) {
-        return T(); // 返回默认值
-    }
-    std::string valueStr = envValue;
-    size_t colonPos = valueStr.find(':');
-    if (colonPos == std::string::npos) {
-        return T(); // 返回默认值
-    }
-    std::string type = valueStr.substr(0, colonPos);
-    std::string value = valueStr.substr(colonPos + 1);
-
-    T result;
-    std::istringstream iss(value);
-    iss >> result;
-    return result;
-}
-
-//定义一个函数用于存储环境变量并添加类型信息
+// 存储环境变量时添加引号并转义内部引号
 void storeEnvWithType(const std::string& key, const juce::String& value, const std::string& type) {
-    std::string envStr = key + "=" + type + ":" + value.toStdString();
-    putenv(const_cast<char*>(envStr.c_str()));
+    std::string escapedValue = value.toStdString();
+    // 转义字符串中的引号
+    size_t pos = 0;
+    while ((pos = escapedValue.find('"', pos)) != std::string::npos) {
+        escapedValue.insert(pos, "\\");
+        pos += 2;
+    }
+    // 使用双引号包裹字符串，确保空格被保留
+    std::string envStr = key + "=" + type + ":\"" + escapedValue + "\"";
+
+    // 使用 putenv，但先复制字符串以避免悬空指针问题
+    char* envCopy = new char[envStr.size() + 1];
+    std::strcpy(envCopy, envStr.c_str());
+
+    // 存储指针以便后续清理
+    static std::vector<char*> allocatedEnvVars;
+    allocatedEnvVars.push_back(envCopy);
+
+    // 设置环境变量
+    if (putenv(envCopy) != 0) {
+        std::cerr << "Failed to set environment variable: " << key << std::endl;
+    }
+
     juce::Logger::writeToLog("Stored Environment Variable: " + juce::String(envStr));
 }
 
-
-
-
-// 示例：将环境变量 Compressor_on 中的值赋值给另一个 int 类型的变量
-void assignCompressorOnValue() {
-    bool f_FeedbackValue = readEnvWithType<bool>("Compressor_on");
-    // 现在 compressorOnValue 包含了环境变量 Compressor_on 的值
-    if (f_FeedbackValue) {
-        juce::Logger::writeToLog("f_Feedback value=true");
-    }
-}
 
 EffectParameters extractParameters(const juce::String& jsonString) {
     EffectParameters params;
@@ -474,29 +466,6 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     return params;
 }
 
-
-// 合并多个 JSON 字符串为一个 JSON 对象
-juce::var mergeJsonStrings(const juce::StringArray& jsonStrings) {
-    juce::var mergedJson = juce::var(new juce::DynamicObject());
-
-    for (const auto& jsonString : jsonStrings) {
-        auto jsonVar = juce::JSON::parse(jsonString);
-        if (!jsonVar.isVoid()) {
-            auto* obj = jsonVar.getDynamicObject();
-            if (obj) {
-                const auto& properties = obj->getProperties();
-                for (int i = 0; i < properties.size(); ++i) {
-                    const auto& key = properties.getName(i);
-                    mergedJson.getDynamicObject()->setProperty(key, properties.getValueAt(i));
-                }
-            }
-        }
-    }
-
-    return mergedJson;
-}
-
-
 // 实现 ChatComponent 类的构造函数
 ChatComponent::ChatComponent()
     : juce::Thread("NetworkThread"),  // 初始化网络线程
@@ -543,7 +512,6 @@ void ChatComponent::callAsync(const juce::String& response)
         });
 }
 
-
 // 实现 ChatComponent 类的 buttonClicked 方法
 void ChatComponent::buttonClicked(juce::Button* button)
 {
@@ -569,191 +537,51 @@ void ChatComponent::run()
         juce::Logger::writeToLog("send request: " + userMessage);
     }
 
-    // 构建请求JSON
-    juce::var jsonBody = juce::var(new juce::DynamicObject());
-    jsonBody.getDynamicObject()->setProperty("bot_id", "7493403625625141311");
-    jsonBody.getDynamicObject()->setProperty("user_id", "123");
+    // 定义 Python 解释器路径和 Python 脚本路径
+    const char* pythonInterpreterPath = R"(E:\c++\day11\PythonApplication\env\Scripts\python.exe)";
+    const char* pythonScriptPath = R"(E:\c++\day11\PythonApplication\PythonApplication.py)";
 
-    juce::var messages = juce::var(juce::Array<juce::var>());
-    auto message = juce::var(new juce::DynamicObject());
-    message.getDynamicObject()->setProperty("role", "user");
-    message.getDynamicObject()->setProperty("content", userMessage);
-    message.getDynamicObject()->setProperty("content_type", "text");
-    messages.append(message);
+    // 构建执行 Python 脚本的命令，将用户输入的信息作为参数传递给 Python 脚本
+    std::string command = pythonInterpreterPath;
+    command += " ";
+    command += pythonScriptPath;
+    command += " \"";  // 添加左引号
+    command += userMessage.toStdString();
+    command += "\"";   // 添加右引号
 
-    jsonBody.getDynamicObject()->setProperty("additional_messages", messages);
-    jsonBody.getDynamicObject()->setProperty("stream", true);
+    storeEnvWithType("user_Message", userMessage.toStdString(), "string");
 
-    // 构建请求URL
-    juce::URL url(API_ENDPOINT);
-    auto jsonStr = juce::JSON::toString(jsonBody, true);
-    // 打印请求体
-    juce::Logger::writeToLog("send request: " + jsonStr);
-
-    // 构建请求头
-    juce::String extraHeaders = "Content-Type: application/json\r\n";
-    extraHeaders += "Authorization: Bearer " + COZE_API_KEY + "\r\n";
-    extraHeaders += "Accept: application/json\r\n";
-    // 打印请求头
-    juce::Logger::writeToLog("send requestHeaders: " + extraHeaders);
-
-    int maxRetries = 3;
-    int retryCount = 0;
-
-    while (retryCount < maxRetries)
-    {
-        int statusCode = 0;
-        std::unique_ptr<juce::InputStream> stream = url.withPOSTData(jsonStr)
-            .createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inPostData)
-                .withExtraHeaders(extraHeaders) // 包含请求头
-                .withConnectionTimeoutMs(100000)//连接超时时间
-                .withResponseHeaders(nullptr)
-                .withStatusCode(&statusCode));
-
-        if (stream != nullptr && statusCode == 200)
-        {
-            auto response = stream->readEntireStreamAsString();
-            // 打印 response 内容
-            juce::Logger::writeToLog("Received response: " + response);
-            updateStatus("handling Response");
-            handleResponse(response);
-            updateStatus("Ready");
-            break;
-        }
-        else
-        {
-            retryCount++;
-            juce::Logger::writeToLog("Request failed with status code: " + juce::String(statusCode) + ". Retrying...");
-            juce::Thread::sleep(1000); // 等待 1 秒后重试
-        }
+    // 执行 Python 脚本
+    int returnCode = std::system(command.c_str());
+    if (returnCode != 0) {
+        std::cerr << "Python script execution failed, return code: " << returnCode << std::endl;
+        std::cerr << "执行的命令: " << command << std::endl;
+        updateStatus("Python script execution failed");
     }
+    else {
+        updateStatus("Python script executed successfully");
 
-    if (retryCount == maxRetries)
-    {
-        updateStatus("Request failed after multiple attempts");
-        juce::Logger::writeToLog("Request failed after multiple attempts");
+        // 读取 result.txt 文件
+        std::ifstream file(R"(C:\Users\80753\Desktop\result.txt)");
+        if (!file.is_open()) {
+            std::cerr << "无法打开 result.txt 文件" << std::endl;
+            updateStatus("无法打开 result.txt 文件");
+            return;
+        }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        std::string result_str = buffer.str();
+
+        // 关闭文件
+        file.close();
+
+        // 调用提取参数的函数
+        EffectParameters params = extractParameters(result_str);
+
+        // 将结果显示在 UI 上
+        callAsync(juce::String(params.toString()));
     }
-}
-
-// 实现 ChatComponent 类的 createMessage 方法
-juce::var ChatComponent::createMessage(const juce::String& role, const juce::String& content)
-{
-    auto message = juce::var(new juce::DynamicObject());
-    message.getDynamicObject()->setProperty("role", role);
-    message.getDynamicObject()->setProperty("content", content);
-    return message;
-}
-
-// 实现 ChatComponent 类的 handleResponse 方法
-void ChatComponent::handleResponse(const juce::String& response)
-{
-    juce::StringArray lines = juce::StringArray::fromLines(response);
-    juce::String fullContent;
-    juce::StringArray jsonStrings;
-
-    for (const auto& line : lines)
-    {
-        if (line.isEmpty()) continue;
-
-        if (line.startsWith("event:")) continue; // 忽略事件行
-
-        if (line.startsWith("data:"))
-        {
-            auto jsonData = line.substring(5).trim(); // 获取数据部分并去除首尾空格
-
-            if (jsonData == "[DONE]")
-            {
-                updateStatus("Conversation completed");
-                break;
-            }
-
-            auto jsonResponse = juce::JSON::parse(jsonData);
-            if (jsonResponse.isVoid()) {
-                // 无效的 JSON 响应
-                juce::Logger::writeToLog("Invalid JSON response: " + jsonData);
-                continue; // 跳过无效的 JSON 数据
-            }
-
-            if (auto* obj = jsonResponse.getDynamicObject())
-            {
-                // 检查是否为失败消息
-                auto status = obj->getProperty("status").toString();
-                if (status == "failed")
-                {
-                    auto lastError = obj->getProperty("last_error");
-                    if (auto* errorObj = lastError.getDynamicObject())
-                    {
-                        juce::String errorMsg = errorObj->getProperty("msg").toString();
-                        updateStatus("Request failed: " + errorMsg);
-                        juce::Logger::writeToLog("Request failed: " + errorMsg);
-                        return;
-                    }
-                }
-
-                // 获取回复
-                auto role = obj->getProperty("role").toString();
-                auto type = obj->getProperty("type").toString();
-                if (role == "assistant")
-                {
-                    auto content = obj->getProperty("content").toString();
-                    if (type == "answer")
-                    {
-                        if (!fullContent.startsWith(content))
-                        {
-                            fullContent += content;
-                        }
-                    }
-                    else if (type == "follow_up")
-                    {
-                        if (!fullContent.startsWith(content))
-                        {
-                            fullContent += "\n\nFollow-up: " + content;
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
-    // 提取 fullContent 中的 JSON 代码块
-    juce::StringArray jsonBlocks;
-    bool inJsonBlock = false;
-    juce::String currentJsonBlock;
-    for (const auto& line : juce::StringArray::fromLines(fullContent))
-    {
-        if (line.contains("```json"))
-        {
-            inJsonBlock = true;
-            currentJsonBlock = "";
-            continue;
-        }
-        if (line.contains("```"))
-        {
-            inJsonBlock = false;
-            jsonBlocks.add(currentJsonBlock);
-            continue;
-        }
-        if (inJsonBlock)
-        {
-            currentJsonBlock += line + "\n";
-        }
-    }
-
-    // 合并 JSON 字符串
-    juce::var mergedJson = mergeJsonStrings(jsonBlocks);
-    juce::String mergedJsonStr = juce::JSON::toString(mergedJson, true);
-
-
-
-    // 调用提取参数的函数
-    EffectParameters params = extractParameters(mergedJsonStr);
-
-    // 调用 callAsync 将响应内容打印到用户界面
-    callAsync(params.toString());
-
-    assignCompressorOnValue();
-    //mFeedbackSliderPtr->setValue(0.2);
 }
 
 
@@ -782,28 +610,4 @@ void MainWindow::closeButtonPressed()
 {
     // 确认关闭应用程序
     juce::JUCEApplication::quit();
-}
-
-// 实现 DeepSeekChatApp 类的 getApplicationName 方法
-const juce::String DeepSeekChatApp::getApplicationName()
-{
-    return "DeepSeekChat";
-}
-
-// 实现 DeepSeekChatApp 类的 getApplicationVersion 方法
-const juce::String DeepSeekChatApp::getApplicationVersion()
-{
-    return "1.0.0";
-}
-
-// 实现 DeepSeekChatApp 类的 initialise 方法
-void DeepSeekChatApp::initialise(const juce::String&)
-{
-    mainWindow.reset(new MainWindow());
-}
-
-// 实现 DeepSeekChatApp 类的 shutdown 方法
-void DeepSeekChatApp::shutdown()
-{
-    mainWindow = nullptr;
 }

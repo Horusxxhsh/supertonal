@@ -2,37 +2,8 @@
 #include <JuceHeader.h>
 #include <iostream>
 
-// 打印提取的参数到日志
-//juce::Logger::writeToLog("Extracted Parameters:");
-//juce::Logger::writeToLog("Compressor_on: " + juce::String(params.Compressor_on));
-//juce::Logger::writeToLog("Driver_on: " + juce::String(params.Driver_on));
-//juce::Logger::writeToLog("Screamer_on: " + juce::String(params.Screamer_on));
-//juce::Logger::writeToLog("Delay_on: " + juce::String(params.Delay_on));
-//juce::Logger::writeToLog("Reverb_on: " + juce::String(params.Reverb_on));
-//juce::Logger::writeToLog("Chorus_on: " + juce::String(params.Chorus_on));
-//juce::Logger::writeToLog("Ratio: " + juce::String(params.ratio));
-//juce::Logger::writeToLog("Attack: " + juce::String(params.attack));
-//juce::Logger::writeToLog("Release: " + juce::String(params.release));
-//juce::Logger::writeToLog("Makeup: " + juce::String(params.makeup));
-//juce::Logger::writeToLog("Distortion: " + juce::String(params.distortion));
-//juce::Logger::writeToLog("Volume: " + juce::String(params.volume));
-//juce::Logger::writeToLog("Drive: " + juce::String(params.drive));
-//juce::Logger::writeToLog("Tone: " + juce::String(params.tone));
-//juce::Logger::writeToLog("Level: " + juce::String(params.level));
-//juce::Logger::writeToLog("Feedback: " + juce::String(params.feedback));
-//juce::Logger::writeToLog("Delay: " + juce::String(params.delay));
-//juce::Logger::writeToLog("Mix: " + juce::String(params.mix));
-//juce::Logger::writeToLog("Size: " + juce::String(params.size));
-//juce::Logger::writeToLog("Damping: " + juce::String(params.damping));
-//juce::Logger::writeToLog("Width: " + juce::String(params.width));
-//juce::Logger::writeToLog("Depth: " + juce::String(params.depth));
-//juce::Logger::writeToLog("Frequency: " + juce::String(params.frequency));
-
-
-
-
 // Coze API密钥
-static const juce::String COZE_API_KEY = "pat_VM15JCu2LTk4Hci8PB4QFX7vHy2gXEgheHo03tFvARi8e2r8gC5KcCbjKJURd73F"; // 替换为你的Coze API密钥
+static const juce::String COZE_API_KEY = "pat_qYqWeCHQq2kXBWHJukeL8mOYyyRI9gdDa8a4ENXQiQjXqb3DNOYs3RbgN54gD4vE"; // 替换为你的Coze API密钥
 static const juce::String API_ENDPOINT = "https://api.coze.cn/v3/chat"; // Coze API端点
 static const juce::String RESULT_ENDPOINT = "https://api.coze.cn/v3/chat/result"; // 结果查询API端点
 
@@ -152,6 +123,8 @@ public:
     ChatComponent();
     void resized() override;
     void buttonClicked(juce::Button* button) override;
+
+ 
 private:
     juce::TextEditor inputEditor;
     juce::TextButton sendButton;
@@ -160,8 +133,6 @@ private:
     juce::String userMessageToSend; // 待发送的用户消息
 
     void run() override;
-    juce::var createMessage(const juce::String& role, const juce::String& content);
-    void handleResponse(const juce::String& response);
     void updateStatus(const juce::String& text);
     void callAsync(const juce::String& response);
 };
@@ -177,19 +148,6 @@ private:
     std::unique_ptr<juce::TabbedComponent> tabbedComponent;
 };
 
-// 应用程序类
-class DeepSeekChatApp : public juce::JUCEApplication
-{
-public:
-    DeepSeekChatApp() = default;
-    const juce::String getApplicationName() override;
-    const juce::String getApplicationVersion() override;
-    void initialise(const juce::String&) override;
-    void shutdown() override;
-
-private:
-    std::unique_ptr<MainWindow> mainWindow;
-};
 
 
 

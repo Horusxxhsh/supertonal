@@ -20,25 +20,43 @@
 
 #include <JuceHeader.h>
 
- // 定义一个函数用于从环境变量中读取并还原类型
+ // 从环境变量读取时去除引号并处理转义字符
 template<typename T>
 T readEnvWithType(const std::string& key) {
     const char* envValue = std::getenv(key.c_str());
     if (envValue == nullptr) {
         return T(); // 返回默认值
     }
+
     std::string valueStr = envValue;
     size_t colonPos = valueStr.find(':');
     if (colonPos == std::string::npos) {
         return T(); // 返回默认值
     }
+
     std::string type = valueStr.substr(0, colonPos);
     std::string value = valueStr.substr(colonPos + 1);
 
-    T result;
-    std::istringstream iss(value);
-    iss >> result;
-    return result;
+    // 去除可能存在的引号
+    if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+        value = value.substr(1, value.size() - 2);
+        // 处理转义的引号
+        size_t pos = 0;
+        while ((pos = value.find("\\\"", pos)) != std::string::npos) {
+            value.erase(pos, 1); // 移除反斜杠
+            pos += 1;
+        }
+    }
+
+    if constexpr (std::is_same_v<T, std::string>) {
+        return value;
+    }
+    else {
+        T result;
+        std::istringstream iss(value);
+        iss >> result;
+        return result;
+    }
 }
 
 class DelayComponent : public juce::Component, public juce::AudioProcessorValueTreeState::Listener
