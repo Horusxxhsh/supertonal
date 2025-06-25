@@ -48,10 +48,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     juce::Logger::writeToLog("Parsed JSON for parameter extraction: " + juce::JSON::toString(jsonVar, true));
 
     // 获取压缩效果器的参数
-    if (jsonVar["Compressor"].isObject()) {
+    if (jsonVar["CompressorOn"].isObject()) {
         params.Compressor_on = 1;
         //     storeEnvWithType("Compressor_on", juce::String(params.Compressor_on), "int");
-        if (auto* compressor = jsonVar["Compressor"].getDynamicObject()) {
+        if (auto* compressor = jsonVar["CompressorOn"].getDynamicObject()) {
             if (compressor->hasProperty("Threshold")) {
                 params.co_threshold = compressor->getProperty("Threshold");
                 storeEnvWithType("co_Threshold", juce::String(params.co_threshold), "double");
@@ -90,10 +90,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
 
     // 获取失真效果器的参数
-    if (jsonVar["Driver"].isObject()) {
+    if (jsonVar["DriverOn"].isObject()) {
         params.Driver_on = 1;
         //      storeEnvWithType("Driver_on", juce::String(params.Driver_on), "int");
-        if (auto* distortion = jsonVar["Driver"].getDynamicObject()) {
+        if (auto* distortion = jsonVar["DriverOn"].getDynamicObject()) {
             if (distortion->hasProperty("Distortion")) {
                 params.dr_distortion = distortion->getProperty("Distortion");
                 storeEnvWithType("dr_Distortion", juce::String(params.dr_distortion), "double");
@@ -112,10 +112,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
 
     // 获取过载效果器的参数Screamer
-    if (jsonVar["Screamer"].isObject()) {
+    if (jsonVar["ScreamerOn"].isObject()) {
         params.Screamer_on = 1;
         //     storeEnvWithType("Screamer_on", juce::String(params.Screamer_on), "int");
-        if (auto* overdrive = jsonVar["Screamer"].getDynamicObject()) {
+        if (auto* overdrive = jsonVar["ScreamerOn"].getDynamicObject()) {
             if (overdrive->hasProperty("Drive")) {
                 params.s_drive = overdrive->getProperty("Drive");
                 storeEnvWithType("s_Drive", juce::String(params.s_drive), "double");
@@ -139,10 +139,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
 
     // 获取延迟效果器的参数
-    if (jsonVar["Delay"].isObject()) {
+    if (jsonVar["DelayOn"].isObject()) {
         params.Delay_on = 1;
         //    storeEnvWithType("Delay_on", juce::String(params.Delay_on), "int");
-        if (auto* delayEffect = jsonVar["Delay"].getDynamicObject()) {
+        if (auto* delayEffect = jsonVar["DelayOn"].getDynamicObject()) {
             if (delayEffect->hasProperty("Feedback")) {
                 params.de_feedback = delayEffect->getProperty("Feedback");
                 storeEnvWithType("de_Feedback", juce::String(params.de_feedback), "double");
@@ -167,10 +167,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
 
     // 获取混响效果器的参数
 
-    if (jsonVar["Reverb"].isObject()) {
+    if (jsonVar["ReverbOn"].isObject()) {
         params.Reverb_on = 1;
         // storeEnvWithType("Reverb_on", juce::String(params.Reverb_on), "int");
-        if (auto* reverb = jsonVar["Reverb"].getDynamicObject()) {
+        if (auto* reverb = jsonVar["ReverbOn"].getDynamicObject()) {
             if (reverb->hasProperty("Size")) {
                 params.r_size = reverb->getProperty("Size");
                 storeEnvWithType("r_Size", juce::String(params.r_size), "double");
@@ -199,10 +199,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
     }
 
     // 获取合唱效果器的参数，此处逻辑未根据提供的 JSON 数据更新，保留原样
-    if (jsonVar["Chorus"].isObject()) {
+    if (jsonVar["ChorusOn"].isObject()) {
         params.Chorus_on = 1;
         //   storeEnvWithType("Chorus_on", juce::String(params.Chorus_on), "int");
-        if (auto* chorus = jsonVar["Chorus"].getDynamicObject()) {
+        if (auto* chorus = jsonVar["ChorusOn"].getDynamicObject()) {
             if (chorus->hasProperty("Delay")) {
                 params.ch_delay = chorus->getProperty("Delay");
                 storeEnvWithType("ch_Delay", juce::String(params.ch_delay), "double");
@@ -232,10 +232,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
 
     // 获取镶边效果器的参数
 
-    if (jsonVar["Flanger"].isObject()) {
+    if (jsonVar["FlangerOn"].isObject()) {
         params.Flanger_on = 1;
         // storeEnvWithType("Flanger_on", juce::String(params.Flanger_on), "int");
-        if (auto* flanger = jsonVar["Flanger"].getDynamicObject()) {
+        if (auto* flanger = jsonVar["FlangerOn"].getDynamicObject()) {
             if (flanger->hasProperty("Delay")) {
                 params.f_delay = flanger->getProperty("Delay");
                 storeEnvWithType("f_Delay", juce::String(params.f_delay), "double");
@@ -270,10 +270,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
 
     // 获取相位效果器的参数
 
-    if (jsonVar["Phaser"].isObject()) {
+    if (jsonVar["PhaserOn"].isObject()) {
         params.Phaser_on = 1;
         //  storeEnvWithType("Phaser_on", juce::String(params.Phaser_on), "int");
-        if (auto* phaser = jsonVar["Phaser"].getDynamicObject()) {
+        if (auto* phaser = jsonVar["PhaserOn"].getDynamicObject()) {
             if (phaser->hasProperty("Depth")) {
                 params.p_depth = phaser->getProperty("Depth");
                 storeEnvWithType("p_Depth", juce::String(params.p_depth), "double");
@@ -303,10 +303,10 @@ EffectParameters extractParameters(const juce::String& jsonString) {
 
     // 获取均衡效果器的参数
 
-    if (jsonVar["Equaliser"].isObject()) {
+    if (jsonVar["EqualiserOn"].isObject()) {
         params.Equaliser_on = 1;
         //  storeEnvWithType("Phaser_on", juce::String(params.Phaser_on), "int");
-        if (auto* equaliser = jsonVar["Equaliser"].getDynamicObject()) {
+        if (auto* equaliser = jsonVar["EqualiserOn"].getDynamicObject()) {
             if (equaliser->hasProperty("100hz")) {
                 params.e_1 = equaliser->getProperty("100hz");
                 storeEnvWithType("e_1", juce::String(params.e_1), "double");
@@ -538,9 +538,11 @@ void ChatComponent::run()
     }
 
     // 定义 Python 解释器路径和 Python 脚本路径
-    const char* pythonInterpreterPath = R"(E:\c++\day11\PythonApplication\env\Scripts\python.exe)";
-    const char* pythonScriptPath = R"(E:\c++\day11\PythonApplication\PythonApplication.py)";
-
+    //const char* pythonInterpreterPath = R"(E:\c++\day11\PythonApplication\env\Scripts\python.exe)";
+    //const char* pythonScriptPath = R"("E:\c++\juceproject\juceEffector\supertonal\Source\llm.py")";
+    const char* pythonInterpreterPath = R"(E:\c++\juceproject\juceEffector\supertonal\Source\Components\PythonApplication\env\Scripts\python.exe)";
+    //const char* pythonScriptPath = R"(E:\c++\juceproject\juceEffector\supertonal\Source\Components\PythonApplication\llm.py)";
+    const char* pythonScriptPath = R"("E:\c++\juceproject\juceEffector\supertonal\Source\llm.py")";
     // 构建执行 Python 脚本的命令，将用户输入的信息作为参数传递给 Python 脚本
     std::string command = pythonInterpreterPath;
     command += " ";
