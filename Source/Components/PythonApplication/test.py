@@ -2,7 +2,7 @@
 import sqlite3
 
 # 连接到数据库
-conn = sqlite3.connect(r'E:\c++\juceproject\juceEffector\supertonal\Builds\VisualStudio2022\music_info.db')
+conn = sqlite3.connect(r'E:\c++\effector\supertonal\Builds\VisualStudio2022\music_info.db')
 #conn = sqlite3.connect(r'E:\c++\day11\day11\music_info.db')
 cursor = conn.cursor()
 
@@ -17,3 +17,5 @@ except sqlite3.Error as e:
 
 # 关闭连接
 conn.close()
+
+

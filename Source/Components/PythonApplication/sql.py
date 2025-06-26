@@ -21,7 +21,7 @@ def get_ratio(value):
 
 try:
     # 连接到数据库
-    conn = sqlite3.connect(r'E:\c++\juceproject\juceEffector\supertonal\Builds\VisualStudio2022\music_info.db')
+    conn = sqlite3.connect(r'E:\c++\effector\supertonal\Builds\VisualStudio2022\music_info.db')
     cursor = conn.cursor()
 
     # 获取index的值
@@ -56,39 +56,123 @@ try:
                         if first_47[0] == 1.0 and 'CompressorOff' in parameters:
                             compressor_settings = parameters.pop('CompressorOff')
                             parameters['CompressorOn'] = compressor_settings
-                        # 当 first_47[1] == 1.0 时，将 "ScreamerOff" 替换为 "ScreamerOn"
+                        if first_47[0] == 0.0 and 'CompressorOn' in parameters:
+                            compressor_settings = parameters.pop('CompressorOn')   
+                            parameters['CompressorOff'] = compressor_settings
+                        if 'CompressorOn' in parameters:
+                            parameters['CompressorOff']['Threshold'] = -128.00  
+                            parameters['CompressorOff']['Ratio'] = 1
+                            parameters['CompressorOff']['Attack'] = 0.00
+                            parameters['CompressorOff']['Release'] = 0.00  
+                            parameters['CompressorOff']['Makeup'] = -12.00
+                            parameters['CompressorOff']['Mix'] = 0.00
+
+                           # 当 first_47[1] == 1.0 时，将 "ScreamerOff" 替换为 "ScreamerOn"
                         if first_47[1] == 1.0 and 'ScreamerOff' in parameters:
                             compressor_settings = parameters.pop('ScreamerOff')
                             parameters['ScreamerOn'] = compressor_settings 
-                        # 当 first_47[2] == 1.0 时，将 "DriverOff" 替换为 "DriverOn"
+                        if first_47[1] == 0.0 and 'ScreamerOn' in parameters:
+                            compressor_settings = parameters.pop('ScreamerOn')
+                            parameters['ScreamerOff'] = compressor_settings
+                        if 'ScreamerOff' in parameters:
+                            parameters['ScreamerOff']['Drive'] = 0.00 
+                            parameters['ScreamerOff']['Tone'] = 0.00
+                            parameters['ScreamerOff']['Level'] = -64.0000000
+                        
+                           # 当 first_47[2] == 1.0 时，将 "DriverOff" 替换为 "DriverOn"
                         if first_47[2] == 1.0 and 'DriverOff' in parameters:
                             compressor_settings = parameters.pop('DriverOff')
                             parameters['DriverOn'] = compressor_settings
-                        # 当 first_47[3] == 1.0 时，将 "DelayOff" 替换为 "DelayOn"
+                        if first_47[2] == 0.0 and 'DriverOn' in parameters:
+                            compressor_settings = parameters.pop('DriverOn')
+                            parameters['DriverOff'] = compressor_settings
+                        if 'DriverOff' in parameters:
+                            parameters['DriverOff']['Distortion'] = 0.00 
+                            parameters['DriverOff']['Volume'] = -64.0
+                            
+                            # 当 first_47[3] == 1.0 时，将 "DelayOff" 替换为 "DelayOn"
                         if first_47[3] == 1.0 and 'DelayOff' in parameters:
                             compressor_settings = parameters.pop('DelayOff')
                             parameters['DelayOn'] = compressor_settings                           
-                        # 当 first_47[4] == 1.0 时，将 "ReverbOff" 替换为 "ReverbOn"
+                        if first_47[3] == 0.0 and 'DelayOn' in parameters:
+                            compressor_settings = parameters.pop('DelayOn')
+                            parameters['DelayOff'] = compressor_settings
+                        if 'DelayOff' in parameters:
+                            parameters['DelayOff']['Feedback'] = 0.00 
+                            parameters['DelayOff']['Delay'] = 1.00
+                            parameters['DelayOff']['Mix'] = 0.00 
+
+                           # 当 first_47[4] == 1.0 时，将 "ReverbOff" 替换为 "ReverbOn"
                         if first_47[4] == 1.0 and 'ReverbOff' in parameters:
                             compressor_settings = parameters.pop('ReverbOff')
                             parameters['ReverbOn'] = compressor_settings
-                        # 当 first_47[5] == 1.0 时，将 "ChorusOff" 替换为 "ChorusOn"
+                        if first_47[4] == 0.0 and 'ReverbOn' in parameters:
+                            compressor_settings = parameters.pop('ReverbOn')
+                            parameters['ReverbOff'] = compressor_settings
+                        if 'ReverbOff' in parameters:
+                            parameters['ReverbOff']['Size'] = 0.00 
+                            parameters['ReverbOff']['Damping'] = 0.00
+                            parameters['ReverbOff']['Width'] = 0.00
+                            parameters['ReverbOff']['Mix'] = 0.00                   
+                            
+                            # 当 first_47[5] == 1.0 时，将 "ChorusOff" 替换为 "ChorusOn"
                         if first_47[5] == 1.0 and 'ChorusOff' in parameters:
                             compressor_settings = parameters.pop('ChorusOff')
                             parameters['ChorusOn'] = compressor_settings
-                        # 当 first_47[6] == 1.0 时，将 "FlangerOff" 替换为 "FlangerOn"
+                        if first_47[5] == 0.0 and 'ChorusOn' in parameters:
+                            compressor_settings = parameters.pop('ChorusOn')
+                            parameters['ChorusOff'] = compressor_settings
+                        if 'ChorusOff' in parameters:
+                            parameters['ChorusOff']['Delay'] = 0.010 
+                            parameters['ChorusOff']['Depth'] = 0.00
+                            parameters['ChorusOff']['Frequency'] = 0.05
+                            parameters['ChorusOff']['Width'] = 0.010
+
+                            # 当 first_47[6] == 1.0 时，将 "FlangerOff" 替换为 "FlangerOn"
                         if first_47[6] == 1.0 and 'FlangerOff' in parameters:
                             compressor_settings = parameters.pop('FlangerOff')
                             parameters['FlangerOn'] = compressor_settings
-                        # 当 first_47[7] == 1.0 时，将 "PhaserOff" 替换为 "PhaserOn"
+                        if first_47[6] == 0.0 and 'FlangerOn' in parameters:
+                            compressor_settings = parameters.pop('FlangerOn')
+                            parameters['FlangerOff'] = compressor_settings
+                        if 'FlangerOff' in parameters:  
+                            parameters['FlangerOff']['Delay'] = 0.00100 
+                            parameters['FlangerOff']['Depth'] = 0.00
+                            parameters['FlangerOff']['Feedback'] = 0.00
+                            parameters['FlangerOff']['Frequency'] = 0.05
+                            parameters['FlangerOff']['Width'] = 0.001
+
+                           # 当 first_47[7] == 1.0 时，将 "PhaserOff" 替换为 "PhaserOn"
                         if first_47[7] == 1.0 and 'PhaserOff' in parameters:
                             compressor_settings = parameters.pop('PhaserOff')
                             parameters['PhaserOn'] = compressor_settings
-                        # 当 first_47[8] == 1.0 时，将 "EqualiserOff" 替换为 "EqualiserOn"
+                        if first_47[7] == 0.0 and 'PhaserOn' in parameters:
+                            compressor_settings = parameters.pop('PhaserOn')
+                            parameters['PhaserOff'] = compressor_settings
+                        if 'PhaserOff' in parameters:
+                            parameters['PhaserOff']['Depth'] = 0.00 
+                            parameters['PhaserOff']['Feedback'] = 0.00
+                            parameters['PhaserOff']['Frequency'] = -64.0000000
+                            parameters['PhaserOff']['Width'] = -64.0000000
+
+                           # 当 first_47[8] == 1.0 时，将 "EqualiserOff" 替换为 "EqualiserOn"
                         if first_47[8] == 1.0 and 'EqualiserOff' in parameters:
                             compressor_settings = parameters.pop('EqualiserOff')
                             parameters['EqualiserOn'] = compressor_settings
-                        # 更新数据库中的参数值
+                        if first_47[8] == 0.0 and 'EqualiserOn' in parameters:
+                            compressor_settings = parameters.pop('EqualiserOn')
+                            parameters['EqualiserOff'] = compressor_settings
+                        if 'EqualiserOff' in parameters:
+                            parameters['EqualiserOff']['100hz'] = 0.00
+                            parameters['EqualiserOff']['200hz'] = 0.00
+                            parameters['EqualiserOff']['400hz'] = 0.00
+                            parameters['EqualiserOff']['800hz'] = 0.00
+                            parameters['EqualiserOff']['1600hz'] = 0.00
+                            parameters['EqualiserOff']['3200hz'] = 0.00
+                            parameters['EqualiserOff']['6400hz'] = 0.00
+                            parameters['EqualiserOff']['Level'] = 0.00
+                            
+                            # 更新数据库中的参数值
                         if first_47[0] == 1.0:
                             if 'CompressorOn' in parameters:
                                
@@ -279,3 +363,4 @@ except sqlite3.Error as e:
 finally:
     if 'conn' in locals() and conn:
         conn.close()
+

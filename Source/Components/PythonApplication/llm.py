@@ -36,7 +36,7 @@ client = OpenAI(api_key="sk-1b73586fde854a329ec187dc371f53ef", base_url="https:/
 if len(sys.argv) > 1:
     chat_message = sys.argv[1]  # 获取命令行参数（c++传过来的歌曲名）
 else:
-    chat_message = 'Hello'
+    chat_message = "Don't cry"
 
 print(f"Chat message: {chat_message}")
 
@@ -202,7 +202,7 @@ else:
 conn.commit()
 
 # 将结果字符串写入文件
-with open(r"C:\Users\80753\Desktop\result.txt", 'w', encoding='utf-8') as f:
+with open(r"C:\Users\Lenovo56\Desktop\result.txt", 'w', encoding='utf-8') as f:
     f.write(result_str)
 
 # 定义 Jaccard 相似度函数
@@ -251,3 +251,4 @@ for song in similar_songs:
 
 # 关闭数据库连接
 conn.close()
+

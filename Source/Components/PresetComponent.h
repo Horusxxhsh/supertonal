@@ -301,9 +301,9 @@ private:
             juce::Logger::writeToLog("paramString:" + juce::String(paramString));
             
             // 定义 Python 解释器路径和 Python 脚本路径
-            const char* pythonInterpreterPath = R"(E:\c++\juceproject\juceEffector\supertonal\Source\Components\PythonApplication\env\Scripts\python.exe)";
+            const char* pythonInterpreterPath = R"(E:\c++\effector\supertonal\Builds\PythonApplication\env\Scripts\python.exe)";
             //const char* pythonScriptPath = R"(E:\c++\juceproject\juceEffector\supertonal\Source\Components\PythonApplication\sql.py)";
-            const char* pythonScriptPath = R"("E:\c++\juceproject\juceEffector\supertonal\Source\sql.py")";
+            const char* pythonScriptPath = R"("E:\c++\effector\supertonal\Builds\PythonApplication\sql.py")";
             
             // 构建执行 Python 脚本的命令，将所有参数传递给 Python 脚本
             std::string command = pythonInterpreterPath;
